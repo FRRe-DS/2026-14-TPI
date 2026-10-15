@@ -12,9 +12,10 @@ Los cambios se hacen con la **CLI de Supabase**: no se ejecuta SQL a mano desde 
 
 ```
 supabase/
-├── config.toml      # configuración de la CLI
-├── migrations/      # un archivo .sql por cambio, en orden de timestamp
-└── .temp/           # vínculo local con el proyecto (no se sube al repo)
+├── config.toml         # configuración de la CLI
+├── migrations/         # un archivo .sql por cambio, en orden de timestamp
+├── tablas-futuras.md   # tablas del diagrama que todavía no tienen migración
+└── .temp/              # vínculo local con el proyecto (no se sube al repo)
 ```
 
 ---
@@ -86,9 +87,9 @@ Después de un `git pull`, corré `npx supabase migration list`: si alguna migra
 
 - Tablas y columnas en español y en `snake_case`. Tablas en singular: `conductor`, `reserva_temporal`. En el código y en la API se usa `camelCase` (`tipoVehiculo`); la traducción la hace la capa de persistencia.
 - Siempre con el esquema explícito: `m4.conductor`.
-- Ids: `uuid`. El de `conductor` es el mismo que usa M3. Los historiales usan `bigint generated always as identity`.
+- Ids que vienen de otro módulo (`conductor.id` de M3, `solicitud_id` de M5): `text`, guardados tal cual llegan, para aceptar UUID o número sin depender de lo que elija cada módulo. Los ids propios de M4 usan `bigint generated always as identity`.
 - Fechas: `timestamptz` en UTC, con sufijo `_en` (`creada_en`, `vence_en`).
-- Unidades en el nombre cuando no es obvia: `precision_m` (metros). Distancias en metros y tiempos en segundos.
+- Unidades como en el contrato con G3: distancias en **km** y ETA en **minutos**. Las duraciones internas (TTL, hold) van en segundos. La unidad va en el nombre cuando no es obvia: `precision_km`.
 - Enums: `text` con un `check` que limita los valores, en español y en mayúsculas (`check (estado in ('ACTIVA', 'CONFIRMADA', ...))`). Se guarda el mismo texto que usa la API, sin tablas de traducción.
 - Coordenadas: `latitud` y `longitud` como `double precision`, en ese orden, con `check` de rango (−90 a 90 y −180 a 180).
 
