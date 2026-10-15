@@ -1,6 +1,7 @@
 # Base de datos (Supabase)
 
 En esta carpeta está la base de datos de M4 (Ubicación y Disponibilidad) versionada como código.
+Para usarla desde el backend (conexión, reglas de los datos y consultas), ver la [guía de uso de la base](../docs/base-de-datos.md).
 Los cambios se hacen con la **CLI de Supabase**: no se ejecuta SQL a mano desde el panel web.
 
 | Dato | Valor |
