@@ -1,0 +1,67 @@
+# docker-compose de M4 (Ubicación y Disponibilidad)
+# Guardar en: deploy/docker-compose.yml
+# Correr desde deploy/:  docker compose up --build
+
+name: m4
+
+services:
+  # Postgres local. Misma versión mayor que Supabase (17).
+  # Al arrancar por primera vez ejecuta, en orden alfabético, todos los .sql
+  # de supabase/migrations (los timestamps garantizan el orden correcto).
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"   # puerto de tu PC : puerto del contenedor (5433 para no chocar con un Postgres propio)
+    volumes:
+      - ../supabase/migrations:/docker-entrypoint-initdb.d:ro
+      - m4-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------
+  # API: descomentar cuando exista código en src/ y su Dockerfile.
+  # ---------------------------------------------------------------
+  # api:
+  #   build: ../src
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+  #     DB_SCHEMA: m4
+  #     DB_SSL: "false"
+  #     # Parámetros de comportamiento (valores de ejemplo, a acordar):
+  #     # UBICACION_TTL_SEGUNDOS: "30"
+  #     # CERCANOS_RADIO_INICIAL_METROS: "2000"
+  #     # CERCANOS_PASO_METROS: "1000"
+  #     # CERCANOS_RADIO_MAXIMO_METROS: "5000"
+  #     # CERCANOS_LIMITE_RESULTADOS: "10"
+  #     # HOLD_DURACION_SEGUNDOS: "30"
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # ---------------------------------------------------------------
+  # Simulador: descomentar cuando exista código en simulator/.
+  # ---------------------------------------------------------------
+  # simulator:
+  #   build: ../simulator
+  #   environment:
+  #     M4_API_URL: http://api:3000
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
+
+volumes:
+  m4-db-data:
