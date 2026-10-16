@@ -25,6 +25,18 @@ services:
       timeout: 5s
       retries: 10
 
+redis:
+  image: redis:7-alpine
+  command: redis-server --appendonly yes
+  ports:
+    - "6379:6379"
+  volumes:
+    - m4-redis-data:/data
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+    interval: 5s
+    timeout: 5s
+    retries: 10
   # ---------------------------------------------------------------
   # API: descomentar cuando exista código en src/ y su Dockerfile.
   # ---------------------------------------------------------------
@@ -32,6 +44,7 @@ services:
   #   build: ../src
   #   environment:
   #     DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+  #     REDIS_URL: redis://redis:6379
   #     DB_SCHEMA: m4
   #     DB_SSL: "false"
   #     # Parámetros de comportamiento (valores de ejemplo, a acordar):
@@ -45,6 +58,8 @@ services:
   #     - "3000:3000"
   #   depends_on:
   #     db:
+  #       condition: service_healthy
+  #     redis:
   #       condition: service_healthy
   #   healthcheck:
   #     test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
@@ -65,3 +80,4 @@ services:
 
 volumes:
   m4-db-data:
+  m4-redis-data:
