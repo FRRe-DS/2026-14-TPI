@@ -1,0 +1,13 @@
+HSET driver:1:location lat -27.4511 lng -58.9867 recibida_en 1760500000
+GEOADD drivers:geo -58.9867 -27.4511 1
+SET driver:1:alive 1 EX 3600
+SADD drivers:available 1
+
+HSET driver:2:location lat -27.4600 lng -58.9800 recibida_en 1760500000
+GEOADD drivers:geo -58.9800 -27.4600 2
+SET driver:2:alive 1 EX 3600
+SADD drivers:available 2
+
+HSET driver:3:location lat -27.4400 lng -58.9900 recibida_en 1760500000
+GEOADD drivers:geo -58.9900 -27.4400 3
+SET driver:3:alive 1 EX 3600
