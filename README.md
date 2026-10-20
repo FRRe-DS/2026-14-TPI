@@ -87,8 +87,8 @@ Acordado en conjunto entre Grupo 14 y Grupo 3
 * Response: `distancia_estimada_km` (Float), `eta_minutos` (Integer).
 
 # Respuestas HTTP Standard
-`200 OK` / `201 Created`: operación procesada exitosamente.
-`400 Bad Request`: error en tipos de datos o coordenadas/radio fuera de rango.
-`404 Not Found`: conductor inexistente o ubicación caducada (TTL).
-`409 Conflict`: intento de reserva sobre un conductor bloqueado simultáneamente por otra oferta.
-`500 Internal Server Error`: fallo de base de datos o indisponibilidad del servicio de mapas.
+* `200 OK` / `201 Created`: operación procesada exitosamente.
+* `400 Bad Request`: error en tipos de datos o coordenadas/radio fuera de rango.
+* `404 Not Found`: conductor inexistente o ubicación caducada (TTL).
+* `409 Conflict`: intento de reserva sobre un conductor bloqueado simultáneamente por otra oferta.
+* `500 Internal Server Error`: fallo de base de datos o indisponibilidad del servicio de mapas.
