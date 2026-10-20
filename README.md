@@ -67,7 +67,7 @@ API de Mapas Externa: interfaz con proveedor externo (o servicio simulado) para 
 
 Acordado en conjunto entre Grupo 14 y Grupo 3
 
-# Endpoints Principales
+## Endpoints Principales
 
 1.`POST /api/v1/ubicaciones`
 * Propósito: registrar/actualizar la posición y timestamp del conductor (RF-4.1).
