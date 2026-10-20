@@ -25,10 +25,10 @@
 El Módulo 4 (Ubicación y Disponibilidad) es responsable de gestionar y determinar en tiempo real la posición geográfica vigente del conductor, su disponibilidad operativa, la proximidad a los clientes, el cálculo de distancias de recorrido y el Tiempo Estimado de Llegada (ETA).
 
 # Integración con otros Módulos
-M3 (Conductores y Vehículos): consulta el perfil de los conductores, validando su estado de habilitación (`Aprobado`, `Suspendido`) y cambios de disponibilidad (`Disponible`, `No Disponible`).
-M5 (Solicitud y Despacho): provee el listado de conductores disponibles/cercanos filtrados por tipo de vehículo (`AUTO`, `MOTO`) y gestiona reservas temporales de conductores durante las ofertas de viaje.
-M7 (Tarifas, Pagos y Liquidaciones) y M9 (Reservas de Viajes): provee estimaciones de distancia (`km`) y tiempo (`minutos`) requeridas para el cálculo de tarifas y la planificación de viajes diferidos.
-API de Mapas Externa: interfaz con proveedor externo (o servicio simulado) para geocodificación, trazado de rutas y cálculo de tiempos/distancias.
+* M3 (Conductores y Vehículos): consulta el perfil de los conductores, validando su estado de habilitación (`Aprobado`, `Suspendido`) y cambios de disponibilidad (`Disponible`, `No Disponible`).
+* M5 (Solicitud y Despacho): provee el listado de conductores disponibles/cercanos filtrados por tipo de vehículo (`AUTO`, `MOTO`) y gestiona reservas temporales de conductores durante las ofertas de viaje.
+* M7 (Tarifas, Pagos y Liquidaciones) y M9 (Reservas de Viajes): provee estimaciones de distancia (`km`) y tiempo (`minutos`) requeridas para el cálculo de tarifas y la planificación de viajes diferidos.
+* API de Mapas Externa: interfaz con proveedor externo (o servicio simulado) para geocodificación, trazado de rutas y cálculo de tiempos/distancias.
 
 
 # 2. Requerimientos Funcionales (RF)
