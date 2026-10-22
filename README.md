@@ -48,9 +48,9 @@ El Módulo 4 (Ubicación y Disponibilidad) es responsable de gestionar y determi
 # 3. Requerimientos No Funcionales (RNF) y Decisiones de Arquitectura
 
 **RNF-01 (Libertad Tecnológica):**
-  * Lenguaje: TypeScript.
-  * Runtime / Framework Backend: Node.js con Express.js.
-  * TypeScript garantiza tipado estático fuertemente alineado con los esquemas de OpenAPI, reduciendo fallas en tiempo de ejecución y asegurando consistencia en los contratos de datos entre microservicios.
+  * Lenguaje: Python.
+  * Runtime / Framework Backend: FastAPI.
+  * FastAPI utiliza Pydantic para el tipado estricto, lo que permite validar los datos en tiempo de ejecución y autogenerar la especificación OpenAPI (Swagger) directamente desde el código base. Esto elimina la necesidad de redactar contratos manualmente, reduce la fricción del desarrollo y asegura la consistencia de los datos entre microservicios.
 
 
 **RNF-03 (Contratos y Manejo de Errores):**
