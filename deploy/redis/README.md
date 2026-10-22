@@ -26,8 +26,8 @@ Importante: las claves de Redis son internas de nuestra implementación, pero pa
 Valores de TTL (30 s en el compose de ejemplo): a acordar con el grupo; el contrato solo establece que las ubicaciones vencen por TTL.
 
 ## Reglas
-- Longitud primero en comandos GEO: `GEOADD conductores:geo <longitud> <latitud> <conductor_id>`.
-- Cada ping del GPS: actualizar `ubicacion`, `conductores:geo` y renovar `activo`, juntos.
+- Longitud primero en comandos GEO: `GEOADD conductores_geo <longitud> <latitud> <conductor_id>`.
+- Cada ping del GPS: actualizar `ubicacion`, `conductores_geo` y renovar `activo`, juntos.
 - Los miembros de un GEO no tienen TTL propio: si `activo` expiró, hay que sacar
   al conductor de `conductores_geo` y de `conductores:disponibles:*` y borrar su hash `ubicacion`.
 - Si `activo` no existe, el conductor se considera desconectado: la API responde 404 (ubicacion expirada).
