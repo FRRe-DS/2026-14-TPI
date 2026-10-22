@@ -1,13 +1,13 @@
 HSET conductor:1:ubicacion latitud -27.4511 longitud -58.9867 timestamp_ubicacion 2026-10-16T14:30:00Z
-GEOADD conductores:geo -58.9867 -27.4511 1
+GEOADD conductores_geo -58.9867 -27.4511 1
 SET conductor:1:activo 1 EX 3600
 SADD conductores:disponibles:AUTO 1
 
 HSET conductor:2:ubicacion latitud -27.4600 longitud -58.9800 timestamp_ubicacion 2026-10-16T14:30:00Z
-GEOADD conductores:geo -58.9800 -27.4600 2
+GEOADD conductores_geo -58.9800 -27.4600 2
 SET conductor:2:activo 1 EX 3600
 SADD conductores:disponibles:MOTO 2
 
 HSET conductor:3:ubicacion latitud -27.4400 longitud -58.9900 timestamp_ubicacion 2026-10-16T14:30:00Z
-GEOADD conductores:geo -58.9900 -27.4400 3
+GEOADD conductores_geo -58.9900 -27.4400 3
 SET conductor:3:activo 1 EX 3600
