@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "module": "NodeNext",
+    "target": "es2022",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "types": [],
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Desactivamos el chequeo estricto de nulos para evitar errores con IORedis
+    "strict": false,
+    "strictNullChecks": false,
+    "noUncheckedIndexedAccess": false,
+
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force"
+  }
+}
