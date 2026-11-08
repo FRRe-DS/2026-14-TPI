@@ -559,7 +559,7 @@ describe('GET/api/v1/conductores/cercanos', () => {
 
         expect(respuesta.status).toBe(200);
 
-        expect(respuesta.body.conductores).toBe([]);
+        expect(respuesta.body.conductores).toEqual([]);
         expect(respuesta.body.radio_aplicado_km).toBe(5);
 
         expect(redisMock.geosearch).toHaveBeenCalledWith(
@@ -583,7 +583,7 @@ describe('GET/api/v1/conductores/cercanos', () => {
         //-----
 
         expect(respuesta.status).toBe(200);
-        expect(respuesta.body.conductores).toBe([]);
+        expect(respuesta.body.conductores).toEqual([]);
     });
 
 
