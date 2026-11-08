@@ -244,6 +244,40 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(redisMock.srem).not.toHaveBeenCalled();
     });
 
+    it('procesa la solicitud sin parametros', async () => {
+        const conductorId = '00000000-0000-0000-0000-000000000000';
+
+        poolMock.query.mockResolvedValue({
+            rows: [{ tipo_vehiculo: 'MOTO' }]
+        });
+
+        // ACT
+        const respuesta = await request(app)
+            .put(`/api/v1/conductores/${conductorId}/estado-operativo`)
+            .send({});
+        //------
+        
+        expect(respuesta.status).toBe(200);
+
+        expect(respuesta.body.conductor_id).toBe(conductorId);
+        expect(respuesta.body.event_id).toBe('');
+        expect(respuesta.body.connected).toBe(false);
+        expect(respuesta.body.available).toBe(false);
+        expect(respuesta.body.recibido_en.length).toBeGreaterThan(0);
+
+        expect(poolMock.query).toHaveBeenCalledWith(
+            'SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1',
+            [conductorId]
+        );  
+
+        expect(redisMock.srem).toHaveBeenCalledWith(
+            'conductores:disponibles:MOTO',
+            conductorId
+        );
+
+        expect(redisMock.sadd).not.toHaveBeenCalled();
+    });
+
     it('retira conductor(conectado y no disponible)', async () => {
         const conductorId = '00000000-0000-0000-0000-000000000000';
 
