@@ -14,7 +14,6 @@ const { redisMock } = vi.hoisted(() => ({
         sismember: vi.fn(),
         get: vi.fn(),
         del: vi.fn(),
-        ping: vi.fn()
     }
 }));
 
