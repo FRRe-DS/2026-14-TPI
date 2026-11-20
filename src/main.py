@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
@@ -5,9 +6,11 @@ import asyncpg
 import redis.asyncio as redis
 import uvicorn
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/postgres"
+# Las direcciones se leen del entorno (variables DATABASE_URL y REDIS_URL).
+# Si no están definidas se usan las de siempre, para correr la app en la compu sin Docker.
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/postgres")
 # El docker-compose expone Redis en el puerto 6379 estándar
-REDIS_URL = "redis://localhost:6379"
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -103,4 +106,4 @@ async def obtener_conductores_cercanos(
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=3000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=3000)
