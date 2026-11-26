@@ -10,12 +10,10 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-
     // Desactivamos el chequeo estricto de nulos para evitar errores con IORedis
     "strict": false,
     "strictNullChecks": false,
     "noUncheckedIndexedAccess": false,
-
     "noImplicitAny": false,
     "skipLibCheck": true,
     "jsx": "react-jsx",
@@ -23,5 +21,8 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force"
-  }
+  },
+  "include": [
+    "src"
+  ]
 }

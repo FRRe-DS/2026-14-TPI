@@ -236,7 +236,9 @@ app.get('/health/ready', async (req, res) => {
 // Montar la interfaz de Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Inicialización del servidor
-app.listen(PORT, () => {
-    console.log(`[M4] Servidor TypeScript ejecutándose en el puerto ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test")
+    app.listen(PORT, () => {
+        console.log(`[M4] Servidor TypeScript ejecutándose en el puerto ${PORT}`);
+    });
+export { app };
 //# sourceMappingURL=index.js.map

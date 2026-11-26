@@ -11,3 +11,4 @@ dist/
 #Las variables de entorno
 .env
 node_modules/
+dist/
