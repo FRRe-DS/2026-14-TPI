@@ -76,7 +76,7 @@ app.put('/api/v1/conductores/:conductor_id/estado-operativo', async (req: Reques
 
     try {
         const availableEfectivo = connected ? available : false;
-        
+
         // Consultar tipo de vehículo desde PostgreSQL
         let tipoVehiculo = "AUTO";
         const dbResult = await pool.query("SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1", [conductor_id]);
@@ -283,6 +283,8 @@ app.get('/health/ready', async (req: Request, res: Response): Promise<any> => {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Inicialización del servidor
-app.listen(PORT, () => {
+if (process.env.NODE_ENV !== "test") app.listen(PORT, () => {
     console.log(`[M4] Servidor TypeScript ejecutándose en el puerto ${PORT}`);
 });
+
+export { app };
