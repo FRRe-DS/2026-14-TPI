@@ -3,9 +3,11 @@ venv/
 .venv/
 env/
 
-#Caché de Python
-__pycache__/
-*.py[cod]
+#Node
+node_modules/
+dist/
+
 
 #Las variables de entorno
 .env
+node_modules/
