@@ -31,8 +31,12 @@ jobs:
         run: npm ci
       - name: Compilar
         run: npm run build
-      - name: Tests
-        run: npm test
+      - name: Tests, con un minimo de 60% de lineas cubiertas
+        run: |
+          # La herramienta de cobertura se instala aca, en la misma version que vitest, sin tocar package.json
+          VERSION=$(node -p "require('./node_modules/vitest/package.json').version")
+          npm install --no-save "@vitest/coverage-v8@$VERSION"
+          npm test -- --coverage --coverage.include='src/**/*.ts' --coverage.reporter=text --coverage.thresholds.lines=60
 
   seguridad:
     name: Analisis de seguridad (Semgrep)
