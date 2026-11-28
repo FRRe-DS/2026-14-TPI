@@ -1,6 +1,6 @@
 # CI/CD de la API de M4 (G14).
-# En cada pull request: construye la imagen y comprueba que el ambiente arranque y responda.
-# Al entrar a main (o al crear un tag v...), solo si eso pasa, publica la imagen.
+# En cada pull request: compilacion y tests, analisis de seguridad y prueba de punta a punta.
+# Al entrar a main (o al crear un tag v...), solo si todo lo anterior pasa, publica la imagen.
 name: CI/CD
 
 on:
@@ -18,8 +18,34 @@ env:
   IMAGE: ghcr.io/frre-ds/m4-g14
 
 jobs:
-  arranque:
-    name: La imagen arranca y responde
+  tests:
+    name: Compilacion y tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Compilar
+        run: npm run build
+      - name: Tests
+        run: npm test
+
+  seguridad:
+    name: Analisis de seguridad (Semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v7
+      - name: Analizar el codigo y frenar ante hallazgos graves
+        run: semgrep scan --config p/javascript --config p/typescript --config p/dockerfile --metrics=off --severity ERROR --error src Dockerfile
+
+  e2e:
+    name: Prueba de punta a punta
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -29,20 +55,15 @@ jobs:
         run: |
           printf 'IMAGE_TAG=ci\nDB_PASSWORD=%s\n' "$(openssl rand -hex 12)" > deploy/.env
           docker compose -f deploy/compose.ambiente.yml up -d --wait --wait-timeout 180
-      - name: Comprobar salud y conductores cercanos
-        run: |
-          curl --fail --silent --show-error http://localhost:3000/health/live
-          curl --fail --silent --show-error http://localhost:3000/health/ready
-          respuesta=$(curl --fail --silent --show-error "http://localhost:3000/api/v1/conductores/cercanos?origen_latitud=-27.451&origen_longitud=-58.986&tipo_vehiculo=AUTO&radio_km=5")
-          echo "$respuesta"
-          echo "$respuesta" | grep -q '"conductor_id"'
+      - name: Correr la prueba
+        run: python3 e2e/flujo.py
       - name: Mostrar logs si algo fallo
         if: failure()
         run: docker compose -f deploy/compose.ambiente.yml logs --tail 100
 
   imagen:
     name: Construir y publicar la imagen
-    needs: arranque
+    needs: [tests, seguridad, e2e]
     runs-on: ubuntu-latest
     permissions:
       contents: read
