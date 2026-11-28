@@ -24,6 +24,7 @@ previous_tag="$(sed -n 's/^IMAGE_TAG=//p' deploy/.env)"
 
 git checkout --detach "$commit"
 if ! compose "$commit" up -d --no-deps --wait --wait-timeout 90 api ||
+   ! compose "$commit" exec -T api wget -T 5 -qO- http://127.0.0.1:3000/health/ready ||
    ! curl --fail --silent --show-error --max-time 5 http://127.0.0.1/health/ready; then
   echo "Falló la verificación; se restaura $previous_commit." >&2
   git checkout --detach "$previous_commit"
