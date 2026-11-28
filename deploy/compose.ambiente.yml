@@ -1,0 +1,69 @@
+# Levanta G14 usando su imagen (no compila nada), con su base, sus tablas, Redis y datos de prueba.
+#
+# Uso, desde esta carpeta:
+#   1) copiar ambiente.env.example con el nombre .env y completar la contraseña
+#   2) docker compose -f compose.ambiente.yml up -d
+# Los conductores de prueba vencen a la hora; para recargarlos:
+#   docker compose -f compose.ambiente.yml run --rm seed
+name: m4-g14
+
+services:
+  api:
+    image: ghcr.io/frre-ds/m4-g14:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD}@db:5432/postgres
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # La primera vez crea las tablas con las migraciones del repo, en orden
+      - ../supabase/migrations:/docker-entrypoint-initdb.d:ro
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      # Por TCP, para no darla por lista mientras todavia esta cargando las tablas
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Carga los datos de prueba y termina
+  seed:
+    image: redis:7-alpine
+    restart: "no"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./redis/seed.redis:/seed/seed.redis:ro
+    command: ["sh", "-c", "grep -v '^[[:space:]]*#' /seed/seed.redis | redis-cli -h redis"]
+
+volumes:
+  db:

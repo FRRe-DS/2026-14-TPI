@@ -19,5 +19,8 @@ RUN npm run build
 # Expone el puerto en el que corre tu app (ej. 3000)
 EXPOSE 3000
 
+# La app no corre como administrador del contenedor (hallazgo del análisis de seguridad)
+USER node
+
 # Comando para iniciar la aplicación ya compilada
 CMD ["npm", "run", "start"]
