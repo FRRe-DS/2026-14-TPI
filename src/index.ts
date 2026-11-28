@@ -79,7 +79,7 @@ app.put('/api/v1/conductores/:conductor_id/estado-operativo', async (req: Reques
 
         // Consultar tipo de vehículo desde PostgreSQL
         let tipoVehiculo = "AUTO";
-        const dbResult = await pool.query("SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1", [conductor_id]);
+        const dbResult = await pool.query("SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1", [conductor_id]);
         if (dbResult.rows.length > 0) {
             tipoVehiculo = String(dbResult.rows[0].tipo_vehiculo || "AUTO");
         }

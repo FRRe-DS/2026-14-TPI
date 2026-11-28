@@ -1,8 +1,7 @@
 """Prueba de punta a punta de M4 (G14) contra el ambiente recien levantado (API, base, Redis y datos de prueba).
 
 Uso: python e2e/flujo.py
-Recorre lo que hoy funciona. No incluye el cambio de estado operativo, porque consulta una tabla
-que no existe y responde 500. Usa los datos de prueba: antes de repetirla hay que recargarlos con
+Recorre lo que hoy funciona. Usa los datos de prueba: antes de repetirla hay que recargarlos con
   docker compose -f deploy/compose.ambiente.yml run --rm seed
 Solo usa la biblioteca estandar de Python. Termina con codigo 1 si algo falla.
 """
@@ -65,6 +64,20 @@ def main():
     codigo, texto = llamar("PUT", f"{a.api}/api/v1/conductores/{nuevo}/ubicacion",
                            {"latitud": -27.451, "longitud": -58.986, "timestamp_ubicacion": ahora})
     comprobar("guardar ubicacion", codigo == 200 and nuevo in texto, codigo, texto)
+
+    def cambiar_disponibilidad(disponible):
+        return llamar("PUT", f"{a.api}/api/v1/conductores/{nuevo}/estado-operativo",
+                      {"event_id": str(uuid.uuid4()), "connected": True, "available": disponible})
+
+    codigo, texto = cambiar_disponibilidad(True)
+    comprobar("ponerse disponible", codigo == 200, codigo, texto)
+    codigo, texto = llamar("GET", cercanos)
+    comprobar("el conductor nuevo aparece en cercanos", codigo == 200 and nuevo in (conductores(texto) or []), codigo, texto)
+    codigo, texto = cambiar_disponibilidad(False)
+    comprobar("dejar de estar disponible", codigo == 200, codigo, texto)
+    codigo, texto = llamar("GET", cercanos)
+    lista = conductores(texto)
+    comprobar("el no disponible no aparece", codigo == 200 and lista is not None and nuevo not in lista, codigo, texto)
 
     solicitud = str(uuid.uuid4())
 
