@@ -1,0 +1,75 @@
+# CI/CD de la API de M4 (G14).
+# En cada pull request: construye la imagen y comprueba que el ambiente arranque y responda.
+# Al entrar a main (o al crear un tag v...), solo si eso pasa, publica la imagen.
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/frre-ds/m4-g14
+
+jobs:
+  arranque:
+    name: La imagen arranca y responde
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Construir la imagen
+        run: docker build -t "$IMAGE:ci" .
+      - name: Encender el ambiente (API, base, Redis y datos de prueba)
+        run: |
+          printf 'IMAGE_TAG=ci\nDB_PASSWORD=%s\n' "$(openssl rand -hex 12)" > deploy/.env
+          docker compose -f deploy/compose.ambiente.yml up -d --wait --wait-timeout 180
+      - name: Comprobar salud y conductores cercanos
+        run: |
+          curl --fail --silent --show-error http://localhost:3000/health/live
+          curl --fail --silent --show-error http://localhost:3000/health/ready
+          respuesta=$(curl --fail --silent --show-error "http://localhost:3000/api/v1/conductores/cercanos?origen_latitud=-27.451&origen_longitud=-58.986&tipo_vehiculo=AUTO&radio_km=5")
+          echo "$respuesta"
+          echo "$respuesta" | grep -q '"conductor_id"'
+      - name: Mostrar logs si algo fallo
+        if: failure()
+        run: docker compose -f deploy/compose.ambiente.yml logs --tail 100
+
+  imagen:
+    name: Construir y publicar la imagen
+    needs: arranque
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Iniciar sesion en el registro
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Calcular las etiquetas de la imagen
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha,prefix=sha-
+            type=ref,event=tag
+      - name: Construir (y publicar si no es un pull request)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
