@@ -92,3 +92,22 @@ Acordado en conjunto entre Grupo 14 y Grupo 3
 * `404 Not Found`: conductor inexistente o ubicación caducada (TTL).
 * `409 Conflict`: intento de reserva sobre un conductor bloqueado simultáneamente por otra oferta.
 * `500 Internal Server Error`: fallo de base de datos o indisponibilidad del servicio de mapas.
+
+
+## Despliegue en AWS EC2
+
+Cada push a `main` despliega la imagen de ese commit después de que pasen
+los tests, el análisis de seguridad y la prueba de punta a punta. Los PR
+ejecutan las verificaciones sin acceder a la instancia.
+
+El job transfiere la imagen desde GHCR mediante SSH sobre un túnel de EC2
+Instance Connect. Usa OIDC para abrir el túnel y una clave SSH dedicada en
+GitHub Secrets. Necesita `AWS_DEPLOY_SSH_KEY` y
+`AWS_DEPLOY_SSH_KNOWN_HOSTS` como secretos, y las variables
+`AWS_DEPLOY_ROLE_ARN`, `AWS_DEPLOY_REGION`, `AWS_DEPLOY_EC2_ENDPOINT` y
+`AWS_DEPLOY_EC2_PRIVATE_IP`.
+
+El despliegue actualiza solo la API. Conserva la base y Redis del ambiente,
+y restaura la versión anterior de la API si falla la comprobación de salud.
+Las migraciones nuevas de una base existente se deben aplicar por separado;
+Compose aplica los archivos de inicialización al crear una base vacía.

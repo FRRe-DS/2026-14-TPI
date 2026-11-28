@@ -88,6 +88,7 @@ jobs:
         with:
           images: ${{ env.IMAGE }}
           tags: |
+            type=raw,value=${{ github.sha }},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=sha-
             type=ref,event=tag
@@ -98,3 +99,55 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-aws:
+    name: Desplegar M4 en AWS EC2
+    needs: imagen
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: aws-g14
+    timeout-minutes: 15
+    concurrency:
+      group: m4-g14-aws-deploy
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_DEPLOY_REGION }}
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Transferir y desplegar la imagen de este commit
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_DEPLOY_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.AWS_DEPLOY_SSH_KNOWN_HOSTS }}
+          EC2_ENDPOINT: ${{ vars.AWS_DEPLOY_EC2_ENDPOINT }}
+          EC2_PRIVATE_IP: ${{ vars.AWS_DEPLOY_EC2_PRIVATE_IP }}
+        run: |
+          set -euo pipefail
+          : "${SSH_PRIVATE_KEY:?}" "${SSH_KNOWN_HOSTS:?}" "${EC2_ENDPOINT:?}" "${EC2_PRIVATE_IP:?}"
+          umask 077
+          ssh_dir="$(mktemp -d)"
+          trap 'rm -rf "$ssh_dir"' EXIT
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          ssh_ec2() {
+            ssh -i "$ssh_dir/key" -o BatchMode=yes -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts" \
+              -o HostKeyAlias=m4-g14-ec2 -o HostKeyAlgorithms=ssh-ed25519 \
+              -o "ProxyCommand=aws ec2-instance-connect open-tunnel --instance-connect-endpoint-id $EC2_ENDPOINT --private-ip-address %h --remote-port 22 --max-tunnel-duration 600" \
+              "ubuntu@$EC2_PRIVATE_IP" "$@"
+          }
+          image="$IMAGE:$GITHUB_SHA"
+          docker pull "$image"
+          docker save "$image" | gzip -1 | ssh_ec2 sudo docker load
+          ssh_ec2 bash -s -- "$GITHUB_SHA" < deploy/desplegar-ec2.sh
