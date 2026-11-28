@@ -231,7 +231,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.available).toBe(true);
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            "SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1",
+            "SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1",
             [conductorId]
         );
    
@@ -265,7 +265,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.recibido_en.length).toBeGreaterThan(0);
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            'SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1',
+            'SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1',
             [conductorId]
         );  
 
@@ -306,7 +306,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.available).toBe(false);
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            "SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1",
+            "SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1",
             [conductorId]
         );
 
@@ -347,7 +347,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.available).toBe(false);
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            "SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1",
+            "SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1",
             [conductorId]
         );
 
@@ -386,7 +386,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.available).toBe(true);
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            "SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1",
+            "SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1",
             [conductorId]
         );
 
@@ -419,7 +419,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.error).toBe("Error interno al actualizar estado");
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            "SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1",
+            "SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1",
             [conductorId]
         );
 
@@ -455,7 +455,7 @@ describe('PUT/api/v1/conductores/:conductor_id/estado-operativo', () => {
         expect(respuesta.body.error).toBe("Error interno al actualizar estado");
 
         expect(poolMock.query).toHaveBeenCalledWith(
-            "SELECT tipo_vehiculo FROM conductores WHERE conductor_id = $1",
+            "SELECT tipo_vehiculo FROM m4.conductor WHERE id = $1",
             [conductorId]
         );
 
